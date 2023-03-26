@@ -19,6 +19,9 @@ class Server:
 
         self.websocket = None
 
+        # TODO: The viewer should be able to zoom in and out.
+
+        # TODO: Move this html string to an actual file
         html = f"""
         <!DOCTYPE html>
         <html>
@@ -86,6 +89,11 @@ class Server:
                 await websocket.send_text(data)
 
     async def generateSVG(self):
+        # TODO: Remove any file IO from SVG generation
+        # A .pu and a .svg file are written to disk by code2dia/generator.pym,
+        # as part of the generation process.
+        # Or we can at least make this optional.
+
         # Reload the file
         DIAGRAM_PLANTUML_FILE = re.sub("\.py$", ".pu", self.DIAGRAM_DEFINITION_FILE)
         proc = await asyncio.create_subprocess_shell(

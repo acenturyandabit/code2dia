@@ -27,8 +27,3 @@ Assumptions
 ## Automation capability
 - Detect every file with a given extension in the directory
 - Detect entities within those files, in C++
-
-## Todo
-- End to end memory buffer / pipe, so that there are no stray .pu or .svg files created
-- Viewer improvement: no need to zoom back in when the diagram changes
-- Refactoring: Move http into a file
