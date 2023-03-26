@@ -6,8 +6,10 @@ import asyncio
 from jsonc_parser.parser import JsoncParser
 
 
-CONFIG_FILE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/server/config.jsonc"
-CONFIG=JsoncParser.parse_file(CONFIG_FILE)
+CONFIG_FILE = (
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/server/config.jsonc"
+)
+CONFIG = JsoncParser.parse_file(CONFIG_FILE)
 
 
 def generatePlantUML(diagramString):
@@ -20,10 +22,12 @@ def generatePlantUML(diagramString):
 async def generateSVG(plantUMLPath):
     output = ""
     plantUMLContents = ""
-    with open (plantUMLPath) as f:
+    with open(plantUMLPath) as f:
         plantUMLContents = f.read()
     if CONFIG["plantuml"]["executionType"] == "server":
-        serverPost = requests.post(CONFIG["plantuml"]["serverType"]+"/svg", data=plantUMLContents)
+        serverPost = requests.post(
+            CONFIG["plantuml"]["serverType"] + "/svg", data=plantUMLContents
+        )
         output = serverPost.content
     else:
         proc = await asyncio.create_subprocess_shell(
@@ -31,9 +35,8 @@ async def generateSVG(plantUMLPath):
                 -pipe \
                 -svg \
                 {plantUMLPath}",
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
         )
-        output,_ = await proc.communicate(input=plantUMLContents.encode("utf-8"))
+        output, _ = await proc.communicate(input=plantUMLContents.encode("utf-8"))
     return output
-        

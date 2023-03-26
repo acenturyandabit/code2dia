@@ -9,5 +9,7 @@ def wrapDiagram(*args):
     wrappedOutput += "@enduml"
     return wrappedOutput
 
+
 def cleanName(name):
-    return re.sub("\W","_",name)
+    name = re.sub("\W", "_", name)
+    return name

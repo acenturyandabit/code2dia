@@ -9,14 +9,15 @@ import code2dia
 import logging
 
 
-
-class Server():
+class Server:
     def __init__(self, DIAGRAM_DEFINITION_FILE):
         self.DIAGRAM_DEFINITION_FILE = DIAGRAM_DEFINITION_FILE
         self.DIAGRAM_OUTPUT_FILE = re.sub("\.py$", ".svg", DIAGRAM_DEFINITION_FILE)
 
         app = FastAPI()
         self.app = app
+
+        self.websocket = None
 
         html = f"""
         <!DOCTYPE html>
@@ -63,11 +64,9 @@ class Server():
         async def startup_event():
             asyncio.create_task(self.watchFile())
 
-
         @app.get("/")
         async def get():
             return HTMLResponse(html)
-
 
         @app.get("/diagram")
         async def get():
@@ -78,23 +77,21 @@ class Server():
                 diagramText = f.read()
             return PlainTextResponse(diagramText)
 
-
         @app.websocket("/ws")
         async def websocket_endpoint(websocket: WebSocket):
             await websocket.accept()
+            self.websocket = websocket
             while True:
-                reload = await self.queue.get()
-                await websocket.send_text(reload)
+                data = await websocket.receive_text()
+                await websocket.send_text(data)
 
     async def generateSVG(self):
         # Reload the file
         DIAGRAM_PLANTUML_FILE = re.sub("\.py$", ".pu", self.DIAGRAM_DEFINITION_FILE)
-        print ("build starting")
         proc = await asyncio.create_subprocess_shell(
             f"python {self.DIAGRAM_DEFINITION_FILE}"
         )
         await proc.communicate()
-        print ("build done")
         content = await code2dia.generator.generateSVG(DIAGRAM_PLANTUML_FILE)
 
         with open(self.DIAGRAM_OUTPUT_FILE, "wb") as f:
@@ -103,6 +100,7 @@ class Server():
     async def watchFile(self):
         async for changes in awatch(self.DIAGRAM_DEFINITION_FILE):
             for change in changes:
-                if change[0]==Change.modified:
+                if change[0] == Change.modified:
                     await self.generateSVG()
-                    await self.queue.put("reload")
+                    if self.websocket is not None:
+                        await self.websocket.send_text("reload")

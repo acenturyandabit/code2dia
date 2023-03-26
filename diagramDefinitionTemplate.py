@@ -1,12 +1,12 @@
-import re
+import os
 import code2dia
 
 
 def main():
-    # allFiles = code2dia.enumerateFiles()
-    diagram = code2dia.plantuml.wrapDiagram(
-        "hey -> you"
-    )
+    srcRoot = os.path.dirname(__file__)
+    allFiles = code2dia.analyzer.enumerateFiles(srcRoot, [".c"])
+    diagram = code2dia.plantuml.wrapDiagram(allFiles)
     code2dia.generator.generatePlantUML(diagram)
+
 
 main()
