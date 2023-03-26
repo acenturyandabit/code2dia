@@ -4,11 +4,21 @@ A library of tools to help create diagrams of code manually or automatically, to
 ## Usage
 Assumptions
 - You have miniconda installed
+    - https://docs.conda.io/en/latest/miniconda.html
+- You have added the conda-forge channel
+    - https://conda-forge.org/
+    - `conda config --add channels conda-forge`
 - You have a codebase ready that you want to explore
+- You have a plantuml docker container running on `localhost:8944`:
+    - `docker run -p8944:8000 plantuml/plantuml-server:jetty`
 
 Procedure
+0. `conda create -n code2dia fastapi uvicorn websockets asyncinotify conda-build black`
+    - Using this instead of a requirements.txt or a list file or a meta yaml file because I like keeping deps reasonably up to date. 
+    - You may have to reinstall conda-build afterwards? not sure why but eh
+0. `conda develop .` so that your python interpreter can find the libraries from this project.
 1. copy the `diagramDefinitionTemplate.py` to your codebase root
-2. run `serveDiagram path/to/codebase/diagramDefinitionTemplate.py`.
+2. run `python serveDiagram.py path/to/codebase/diagramDefinitionTemplate.py`.
 2. run `uvicorn serveDiagram:app`
 3. open the link in the browser
 4. make changes to dia-template.py, it will automatically update in the browser

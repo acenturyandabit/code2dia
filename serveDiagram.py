@@ -1,5 +1,4 @@
 import click
-import subprocess
 import os
 
 
@@ -7,7 +6,8 @@ import os
 @click.argument("defpath")
 def main(defpath):
     innerEnv = {**os.environ, "DIAGRAM_DEFINITION_FILE": os.path.abspath(defpath)}
-    subprocess.Popen(["uvicorn", "main:app"], env=innerEnv, cwd="server")
+    os.chdir("server")
+    os.execlpe("uvicorn", "uvicorn", "main:app", innerEnv)
 
 
 if __name__ == "__main__":

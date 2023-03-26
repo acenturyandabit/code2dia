@@ -1,1 +1,6 @@
 __pycache__
+code2dia.egg-info
+
+# For people who directly modify diagramDefinitionTemplate (grr)
+diagramDefinitionTemplate.pu
+diagramDefinitionTemplate.svg
