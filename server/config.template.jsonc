@@ -1,0 +1,9 @@
+{
+    "plantuml":{
+        "executionType":"server",
+        "serverUrl":"http://localhost:8080"
+        // Alternatively: 
+        // "executionType": "java",
+        // "jarPath": "/path/to/your/plantuml.jar"
+    }
+}

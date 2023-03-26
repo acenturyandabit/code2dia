@@ -1,14 +1,13 @@
 import click
 import os
-
+from server.main import Server
+import uvicorn
 
 @click.command()
 @click.argument("defpath")
 def main(defpath):
-    innerEnv = {**os.environ, "DIAGRAM_DEFINITION_FILE": os.path.abspath(defpath)}
-    os.chdir("server")
-    os.execlpe("uvicorn", "uvicorn", "main:app", innerEnv)
-
+    s=Server(os.path.abspath(defpath))
+    uvicorn.run(s.app, host="127.0.0.1", port=8000)
 
 if __name__ == "__main__":
     main()
