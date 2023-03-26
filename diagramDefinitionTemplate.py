@@ -4,7 +4,7 @@ import code2dia
 
 def main():
     srcRoot = os.path.dirname(__file__)
-    allFiles = code2dia.analyzer.enumerateFiles(srcRoot, [".c"])
+    allFiles = code2dia.fileEnumerator.enumerateFiles(srcRoot, [".c"])
     diagram = code2dia.plantuml.wrapDiagram(allFiles)
     code2dia.generator.generatePlantUML(diagram)
 

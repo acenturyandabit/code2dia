@@ -26,6 +26,7 @@ def buildTreeFrom(allFiles: List[str]):
     root = {"part": "", "fullName": os.path.sep, "children": []}
     for file in allFiles:
         pathParts = file.split(os.path.sep)
+        pathParts = pathParts[1:]
         currentNode = root
         for part in pathParts:
             childNames = list(map(lambda i: i["part"], currentNode["children"]))
@@ -45,7 +46,7 @@ def buildTreeFrom(allFiles: List[str]):
 
 def renderTree(rootNode: dict):
     outputLines = []
-    nodeStack = [rootNode]
+    nodeStack = [*rootNode["children"]]
     while len(nodeStack) > 0:
         topNode = nodeStack.pop()
         if len(topNode["children"]) == 0:
