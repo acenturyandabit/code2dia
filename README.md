@@ -1,6 +1,36 @@
 # code 2 dia
 A library of tools to help create diagrams of code manually or automatically, to help with understanding.
 
+## Inspiration
+- PlantUML
+    - Creating component diagrams from text is awesome. PlantUML is the backend to code2dia.
+- rqt_graph
+    - Shows nodes and topics in a very clean, practical way. Awesome tool.
+- https://www.gituml.com/
+    - An attempt to create UML diagrams from code. However, it does not have nesting like plantUML has, which is a key capability I aim to exploit in this project.
+
+## Concepts
+- At the most abstract level, a codebase is made up of a bunch of 'objects'.
+    - Objects include files, folders, classes, functions, variables.
+    - Objects can be represented using different symbols e.g. File = fileshape, class = Rectangle
+- These objects are related to each other in a bunch of different ways. Given two objects A and B, relations include:
+    - folder A contains file B
+    - file A declares class B
+    - file A declares method B
+    - method A calls method B
+    - method A isCalledAfter method B in method C
+    - classInstance A isInstanceOf classPrototype B
+- There are multiple ways of representing these relations, including:
+    - A pointsTo B (with linestyle S)
+    - A contains B
+    - A sharesStyleAttribute S {e.g. thickness} with  B
+- By mapping object relations to representations, we can create very versatile diagrams. For example:
+    - An execution diagram where (A calls B) == (A contains B) and (B isCalledAfter A) == (A pointsTo B)
+
+We can read the code to determine the objects and relations between them. A user can alter the relation/representation mapping to create diagrams which are useful to them.
+
+Note: This is the long term goal. Currently this repo is just set up to show that plantUML and websockets can be used pragmatically to create a programmatic code scraping diagram generator.
+
 ## Usage
 Assumptions
 - You have miniconda installed
@@ -26,4 +56,3 @@ Assumptions
 
 ## Automation capability
 - Detect every file with a given extension in the directory
-- Detect entities within those files, in C++
