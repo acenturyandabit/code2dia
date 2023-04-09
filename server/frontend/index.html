@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Code2dia</title>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+</head>
+
+<body style="margin:0">
+    <textarea id="ddef"></textarea>
+    <button onClick="bSendDefinition()">Resend</button>
+    <textarea id="plantuml"></textarea>
+    <div id="container" style="width: 90vw; height: 90vh; border:1px solid black; ">
+    </div>
+    <script>
+        var ws = new WebSocket("ws://localhost:8000/ws");
+        ws.onmessage = function (event) {
+            if (event.data == "reload") {
+                reload();
+            }
+        };
+
+        const reload = async () => {
+            const diagramDefinitionResponse = await fetch("/getDiagramDefinition", { method: "POST" });
+            const diagramDefinitionText = await diagramDefinitionResponse.text()
+            const textAreaEl = document.querySelector("#ddef");
+            textAreaEl.value = diagramDefinitionText;
+            sendDefinition(diagramDefinitionText)
+            
+        }
+
+        const bSendDefinition = ()=>{
+            const textAreaEl = document.querySelector("#ddef");
+            sendDefinition(textAreaEl.value);
+        }
+
+        const sendDefinition = async (diagramDefinitionText)=>{
+            const plantumlEl = document.querySelector("#plantuml");
+            const diagramResponse = await fetch("/getDiagram", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "text/plain"
+                },
+                body: diagramDefinitionText
+            });
+            const diagramOutputs = await diagramResponse.json()
+            const containerEl = document.querySelector("#container");
+            plantumlEl.value = diagramOutputs.plantuml;
+            containerEl.innerHTML = diagramOutputs.svg 
+
+
+            const svgElement = containerEl.children[0];
+            svgElement.style.cssText = "display: inline; width: inherit; min-width: inherit; max-width: inherit; height: inherit; min-height: inherit; max-height: inherit;";
+            svgPanZoom(svgElement, {
+                zoomEnabled: true,
+                controlIconsEnabled: true,
+                fit: true,
+                maxZoom: 800,
+                center: true
+            });
+        }
+
+        reload();
+
+    </script>
+</body>
+
+</html>
