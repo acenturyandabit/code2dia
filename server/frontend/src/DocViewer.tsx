@@ -2,8 +2,8 @@ import * as React from "react";
 import { useLoaderData, Params } from "react-router-dom";
 import { TOOL_AUTO } from "react-svg-pan-zoom";
 import { MODE_IDLE } from "react-svg-pan-zoom";
-import { ReactSVGPanZoom, TOOL_NONE, Value, Tool } from 'react-svg-pan-zoom';
-
+import { ReactSVGPanZoom, Value, Tool } from 'react-svg-pan-zoom';
+import { ReactSvgPanZoomLoader } from 'react-svg-pan-zoom-loader';
 export const loader = async (args: {
     params: Params<string>
 }) => {
@@ -15,22 +15,53 @@ type LoaderReturn = Awaited<ReturnType<typeof loader>>;
 
 export default () => {
     const loaderReturn = useLoaderData() as LoaderReturn;
-    const [diagramContents, setDiagramContents] = React.useState<string>("");
+    const diagramName = "__doc__" + loaderReturn.docId;
+    const [diagramContents, setDiagramContents] = React.useState<string>(localStorage.getItem(diagramName) || "");
+    const [isErrorState, setIsErrorState] = React.useState<boolean>(false);
+    React.useEffect(() => { localStorage.setItem(diagramName, diagramContents) }, [diagramContents]);
     return <>
         <h1>Document {loaderReturn.docId}</h1>
-        <textarea value={diagramContents} onChange={(evt) => setDiagramContents(evt.target.value)}></textarea>
-        <Diagram diagramContents={diagramContents}></Diagram>
+        <a href="/">Back</a>
+        <div style={{ display: "flex" }}>
+            <textarea style={{ width: "50vw", height: "80vh", background: isErrorState ? "pink" : "white" }} value={diagramContents} onChange={(evt) => setDiagramContents(evt.target.value)}></textarea>
+            <Diagram
+                setIsErrorState={setIsErrorState}
+                diagramContents={diagramContents}
+            />
+        </div>
     </>
 };
 
 const Diagram = (props: {
-    diagramContents: string
+    diagramContents: string,
+    setIsErrorState: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
     const [lastSVG, setLastSVG] = React.useState<string>("");
+    const [lastRenderedContents, setLastRenderedContents] = React.useState<string>("");
+    const [inflightRequest, setInflightRequest] = React.useState<boolean>(false);
     React.useEffect(() => {
-        setLastSVG(props.diagramContents);
+        (async () => {
+            if (!inflightRequest && lastRenderedContents != props.diagramContents) {
+                setInflightRequest(true)
+                try {
+                    const response = await fetch("http://localhost:5973/getDiagram", {
+                        method: "post",
+                        body: props.diagramContents
+                    })
+                    const plantUMLAndJson = await response.json();
+                    props.setIsErrorState(false)
+                    setLastSVG(plantUMLAndJson.svg);
+                    setLastRenderedContents(props.diagramContents);
+                } catch (error) {
+                    props.setIsErrorState(true)
+                    setLastRenderedContents(props.diagramContents);
+                }
+                setInflightRequest(false);
+            }
+        })();
     }, [
-        props.diagramContents
+        props.diagramContents,
+        inflightRequest
     ])
 
     const Viewer = React.useRef(null);
@@ -53,13 +84,17 @@ const Diagram = (props: {
     })
 
 
-    return <ReactSVGPanZoom
-        width={900} height={600}
-        tool={tool} onChangeTool={setTool}
-        value={value} onChangeValue={setValue}
-        detectAutoPan={false}
-    >
-        <div dangerouslySetInnerHTML={{ __html: lastSVG}}>
-        </div>
-    </ReactSVGPanZoom>
+    return <ReactSvgPanZoomLoader svgXML={lastSVG} render={(content) => (
+        <ReactSVGPanZoom
+            width={800} height={800}
+            tool={tool} onChangeTool={setTool}
+            value={value} onChangeValue={setValue}
+            detectAutoPan={false}
+            background="white"
+        >
+            <svg width={500} height={500} >
+                {content}
+            </svg>
+        </ReactSVGPanZoom>
+    )} />
 }

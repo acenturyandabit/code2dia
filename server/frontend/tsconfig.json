@@ -6,10 +6,15 @@
         "paths": {
             "~*": [
                 "./*"
+            ],
+            "*":[
+                "*",
+                "../additionalTypes/*"
             ]
         },
+        "typeRoots": ["./node_modules/@types","./additionalTypes"],
         "strict": true,
-        "target": "ES2015"
+        "target": "ES2015",
     },
     "include": [
         "src/**/*"
