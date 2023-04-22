@@ -16,7 +16,7 @@ type LoaderReturn = Awaited<ReturnType<typeof loader>>;
 export default () => {
     const loaderReturn = useLoaderData() as LoaderReturn;
     const diagramName = "__doc__" + loaderReturn.docId;
-    const [diagramContents, setDiagramContents] = React.useState<string>(localStorage.getItem(diagramName) || "");
+    const [diagramContents, setDiagramContents] = React.useState<string>(localStorage.getItem(diagramName) ?? NEW_DOCUMENT);
     const [isErrorState, setIsErrorState] = React.useState<boolean>(false);
     React.useEffect(() => { localStorage.setItem(diagramName, diagramContents) }, [diagramContents]);
     return <>
@@ -98,3 +98,14 @@ const Diagram = (props: {
         </ReactSVGPanZoom>
     )} />
 }
+
+const NEW_DOCUMENT = `
+hello sayto world
+
+house has cat
+house has mouse
+cat eats mouse
+
+* has *: contains
+* eats *: -->:gotcha
+`;

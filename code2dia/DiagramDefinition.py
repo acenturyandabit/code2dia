@@ -3,7 +3,7 @@ from typing import List
 class DiagramSyntaxError(Exception):
     pass
 
-class DiagramDefinition:
+class DiagramDefinition(dict):
     objects: List
     relations: List
     styleMap: List
@@ -46,7 +46,9 @@ class DiagramDefinition:
         for li, line in enumerate(blobLines):
             try:
                 if ":" in line:
-                    (clauseString, style) = map(lambda l: l.strip(), line.split(":"))
+                    styleStringParts = list(map(lambda l: l.strip(), line.split(":")))
+                    clauseString = styleStringParts[0]
+                    style = ":".join(styleStringParts[1:])
                     (clauseType, clause) = DiagramDefinition.objectOrRelation(clauseString)
                     styleMap.append({
                         "type": clauseType, 
@@ -84,3 +86,10 @@ class DiagramDefinition:
             return None
         else:
             raise DiagramSyntaxError(f"Non-empty line '{line}' with neither object nor relation")
+
+    # JSON serializability 
+    def __getattr__(self, key):
+        return self[key]
+    
+    def __setattr__(self, key, value):
+        self[key] = value
