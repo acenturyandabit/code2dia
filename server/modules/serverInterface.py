@@ -4,7 +4,6 @@ import asyncio
 
 class Server:
     app: FastAPI
-    WATCH_REPOSITORY_PATH: str
     queue: asyncio.Queue
     generateObjectsAndStyle: Coroutine[None,None,str]
 

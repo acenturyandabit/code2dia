@@ -1,12 +1,15 @@
 from .serverInterface import Server
 import os
 import asyncio
+from fastapi import Body
+import json
 
 
 def addFunctionalityTo(server: Server):
-    async def generateObjectsAndStyle():
+    async def generateObjectsAndStyle(body=Body()):
         diaDefPath = "diagramDefinition.py"
-        inRepoDiaDefPath = server.WATCH_REPOSITORY_PATH + os.path.sep + diaDefPath
+        bodyJson = json.loads(body.decode("utf-8"))
+        inRepoDiaDefPath = bodyJson.repoPath + os.path.sep + diaDefPath
         if os.path.exists(inRepoDiaDefPath):
             diaDefPath = inRepoDiaDefPath
         proc = await asyncio.create_subprocess_shell(
